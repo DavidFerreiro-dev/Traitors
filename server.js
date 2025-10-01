@@ -34,11 +34,18 @@ function assignRoles(room) {
   const players = Object.values(room.players);
   const game = getRandomGame();
   
-  // Seleccionar impostor aleatorio
-  const impostorIndex = Math.floor(Math.random() * players.length);
+  // Mezclar array de jugadores para mayor aleatoriedad
+  const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
   
-  players.forEach((player, index) => {
-    if (index === impostorIndex) {
+  // Seleccionar impostor aleatorio del array mezclado
+  const impostorIndex = Math.floor(Math.random() * shuffledPlayers.length);
+  const impostorId = shuffledPlayers[impostorIndex].id;
+  
+  console.log(`🎭 Impostor seleccionado: ${shuffledPlayers[impostorIndex].name} (${impostorId})`);
+  
+  // Asignar roles a todos los jugadores
+  players.forEach((player) => {
+    if (player.id === impostorId) {
       player.role = 'impostor';
       player.game = null;
     } else {
@@ -53,6 +60,8 @@ function assignRoles(room) {
   room.votingPhase = false;
   room.gameEnded = false;
   room.currentGame = game;
+  
+  console.log(`🎮 Juego seleccionado: ${game.title}`);
 }
 
 io.on('connection', (socket) => {
@@ -183,17 +192,25 @@ io.on('connection', (socket) => {
       return;
     }
 
+    if (!room.gameStarted) {
+      socket.emit('error', 'El juego no ha comenzado');
+      return;
+    }
+
+    console.log(`🗳️ Iniciando votación en sala ${roomCode}`);
+
+    // Resetear completamente la votación
     room.votingPhase = true;
     room.votes = {};
     
-    // Resetear votos
+    // Limpiar votos de todos los jugadores
     Object.values(room.players).forEach(player => {
       player.hasVoted = false;
       player.votedFor = null;
     });
 
     io.to(roomCode).emit('votingStarted', Object.values(room.players));
-    console.log(`Votación iniciada en sala ${roomCode}`);
+    console.log(`✅ Votación iniciada. Jugadores: ${Object.values(room.players).length}`);
   });
 
   // Votar
@@ -201,11 +218,18 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
 
     if (!room || !room.votingPhase) {
+      console.log(`⚠️ Voto rechazado: sala no encontrada o votación no activa`);
       return;
     }
 
     const player = room.players[socket.id];
-    if (!player || player.hasVoted) {
+    if (!player) {
+      console.log(`⚠️ Voto rechazado: jugador no encontrado`);
+      return;
+    }
+
+    if (player.hasVoted) {
+      console.log(`⚠️ Voto rechazado: ${player.name} ya votó`);
       return;
     }
 
@@ -217,10 +241,19 @@ io.on('connection', (socket) => {
     }
     room.votes[votedPlayerId]++;
 
+    const votedPlayer = room.players[votedPlayerId];
+    console.log(`✅ ${player.name} votó por ${votedPlayer ? votedPlayer.name : 'desconocido'}`);
+
     // Verificar si todos han votado
+    const totalPlayers = Object.values(room.players).length;
+    const votedPlayers = Object.values(room.players).filter(p => p.hasVoted).length;
+    console.log(`📊 Votos: ${votedPlayers}/${totalPlayers}`);
+
     const allVoted = Object.values(room.players).every(p => p.hasVoted);
     
     if (allVoted) {
+      console.log(`🎯 Todos votaron. Calculando resultados...`);
+
       // Calcular resultados
       let maxVotes = 0;
       let mostVotedId = null;
@@ -238,6 +271,11 @@ io.on('connection', (socket) => {
       const won = mostVotedId === impostor.id;
 
       room.gameEnded = true;
+      room.votingPhase = false;
+
+      console.log(`🏆 Resultado: ${won ? 'INOCENTES GANARON' : 'IMPOSTOR GANÓ'}`);
+      console.log(`🎭 Impostor: ${impostor.name}`);
+      console.log(`🗳️ Más votado: ${mostVotedPlayer ? mostVotedPlayer.name : 'Nadie'}`);
 
       io.to(roomCode).emit('gameEnded', {
         impostor: {
@@ -258,8 +296,6 @@ io.on('connection', (socket) => {
           votedFor: p.votedFor
         }))
       });
-
-      console.log(`Partida terminada en sala ${roomCode}. Ganaron: ${won ? 'Inocentes' : 'Impostor'}`);
     }
   });
 
@@ -277,13 +313,16 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Resetear estado del juego
+    console.log(`🔄 Reiniciando partida en sala ${roomCode}`);
+
+    // Resetear completamente el estado del juego
     room.gameStarted = false;
     room.votingPhase = false;
     room.gameEnded = false;
     room.currentGame = null;
     room.votes = {};
 
+    // Limpiar todos los datos de los jugadores
     Object.values(room.players).forEach(player => {
       player.role = null;
       player.game = null;
@@ -291,10 +330,11 @@ io.on('connection', (socket) => {
       player.votedFor = null;
     });
 
+    // Notificar a todos los clientes
     io.to(roomCode).emit('gameRestarted');
     io.to(roomCode).emit('updatePlayers', Object.values(room.players));
     
-    console.log(`Partida reiniciada en sala ${roomCode}`);
+    console.log(`✅ Partida reiniciada en sala ${roomCode}. Jugadores: ${Object.values(room.players).map(p => p.name).join(', ')}`);
   });
 
   // Desconexión
