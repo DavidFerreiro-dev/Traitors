@@ -215,7 +215,12 @@ document.getElementById('startVotingBtn').addEventListener('click', () => {
 
 socket.on('votingStarted', (players) => {
     const votingList = document.getElementById('votingList');
+    const votingWait = document.getElementById('votingWait');
+    
+    // Resetear estado de votación
     votingList.innerHTML = '';
+    votingList.classList.remove('hidden');
+    votingWait.classList.add('hidden');
     
     players.forEach(player => {
         if (player.id === socket.id) return; // No puedes votarte a ti mismo
@@ -245,7 +250,7 @@ socket.on('votingStarted', (players) => {
             // Mostrar pantalla de espera
             setTimeout(() => {
                 votingList.classList.add('hidden');
-                document.getElementById('votingWait').classList.remove('hidden');
+                votingWait.classList.remove('hidden');
             }, 800);
         });
         
@@ -330,8 +335,14 @@ socket.on('gameRestarted', () => {
     // Limpiar chat
     document.getElementById('chatMessages').innerHTML = '';
     
-    // Ocultar controles de host en pantalla de juego
+    // Resetear pantalla de votación
+    document.getElementById('votingList').classList.remove('hidden');
+    document.getElementById('votingWait').classList.add('hidden');
+    document.getElementById('votingList').innerHTML = '';
+    
+    // Ocultar controles de host
     document.getElementById('hostGameControls').classList.add('hidden');
+    document.getElementById('hostResultsControls').classList.add('hidden');
     
     // Volver al lobby
     showScreen('lobby');
