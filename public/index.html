@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 ¿Quién es el Impostor? - Juego Multijugador</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de inicio -->
+        <div id="startScreen" class="screen active">
+            <div class="card">
+                <h1>🎮 ¿Quién es el Impostor?</h1>
+                <p class="subtitle">Juego multijugador de deducción</p>
+                
+                <div class="input-group">
+                    <input type="text" id="playerNameInput" placeholder="Tu nombre" maxlength="20">
+                </div>
+
+                <div class="button-group">
+                    <button id="createRoomBtn" class="btn btn-primary">Crear Sala</button>
+                    <button id="joinRoomBtn" class="btn btn-secondary">Unirse a Sala</button>
+                </div>
+
+                <div id="joinRoomForm" class="hidden">
+                    <div class="input-group">
+                        <input type="text" id="roomCodeInput" placeholder="Código de sala" maxlength="6">
+                    </div>
+                    <button id="joinRoomConfirmBtn" class="btn btn-primary">Entrar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de lobby -->
+        <div id="lobbyScreen" class="screen">
+            <div class="card">
+                <h2>Sala: <span id="roomCodeDisplay"></span></h2>
+                <p class="subtitle">Esperando jugadores...</p>
+
+                <div class="players-list">
+                    <h3>Jugadores conectados:</h3>
+                    <ul id="playersList"></ul>
+                </div>
+
+                <div id="hostControls" class="hidden">
+                    <button id="startGameBtn" class="btn btn-primary">🚀 Iniciar Partida</button>
+                    <p class="info-text">⚠️ Se necesitan al menos 3 jugadores</p>
+                </div>
+
+                <div class="info-box">
+                    <p>📢 Comparte el código de sala con tus amigos para que se unan</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de juego -->
+        <div id="gameScreen" class="screen">
+            <div class="game-layout">
+                <!-- Panel de rol -->
+                <div class="role-panel card">
+                    <div id="impostorRole" class="role-info hidden">
+                        <h2 class="impostor-title">🎭 Eres el IMPOSTOR</h2>
+                        <p>Los demás jugadores tienen un videojuego en común.</p>
+                        <p><strong>Tu objetivo:</strong> Descubrir cuál es sin que te descubran.</p>
+                        <p class="tip">💡 Haz preguntas sutiles y trata de mezclarte</p>
+                    </div>
+
+                    <div id="innocentRole" class="role-info hidden">
+                        <h2 class="innocent-title">✅ Eres INOCENTE</h2>
+                        <div class="game-info">
+                            <h3>Tu videojuego:</h3>
+                            <p class="game-title" id="gameTitle"></p>
+                            <p class="game-hint">💡 <span id="gameHint"></span></p>
+                        </div>
+                        <p><strong>Tu objetivo:</strong> Descubrir quién es el impostor sin revelar demasiado.</p>
+                        <p class="tip">⚠️ Cuidado: el impostor está escuchando</p>
+                    </div>
+                </div>
+
+                <!-- Panel de chat -->
+                <div class="chat-panel card">
+                    <h3>💬 Chat de Discusión</h3>
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="chat-input-group">
+                        <input type="text" id="chatInput" placeholder="Escribe un mensaje..." maxlength="200">
+                        <button id="sendMessageBtn" class="btn btn-primary">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="hostGameControls" class="hidden">
+                <button id="startVotingBtn" class="btn btn-warning">🗳️ Iniciar Votación</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de votación -->
+        <div id="votingScreen" class="screen">
+            <div class="card">
+                <h2>🗳️ Fase de Votación</h2>
+                <p class="subtitle">¿Quién crees que es el impostor?</p>
+
+                <div class="voting-list" id="votingList"></div>
+
+                <div id="votingWait" class="hidden">
+                    <p class="info-text">Esperando a que todos voten...</p>
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de resultados -->
+        <div id="resultsScreen" class="screen">
+            <div class="card">
+                <div id="resultsContent"></div>
+
+                <div class="vote-details">
+                    <h3>Detalles de la votación:</h3>
+                    <div id="voteBreakdown"></div>
+                </div>
+
+                <div id="hostResultsControls" class="hidden">
+                    <button id="restartGameBtn" class="btn btn-primary">🔄 Nueva Partida</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
