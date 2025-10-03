@@ -1,146 +1,151 @@
-# 🎮 ¿Quién es el Impostor? - Juego Multijugador
+# 🎮 Impostores - Juego Multijugador de Deducción
 
-Un juego web multijugador tipo "¿Quién es el impostor?" donde los jugadores deben descubrir quién no conoce el videojuego secreto.
+![Impostores](icon.png)
 
-## 🎯 Objetivo del Juego
+## 📖 Descripción
 
-- **Inocentes**: Descubrir quién es el impostor sin revelar demasiado sobre el videojuego
-- **Impostor**: Descubrir cuál es el videojuego sin ser descubierto
+**Impostores** es un emocionante juego multijugador de deducción social donde los jugadores deben descubrir quién es el impostor entre ellos. Inspirado en juegos de deducción clásicos, Impostores ofrece una experiencia única con dos modos de juego diferentes.
 
-## 🛠️ Tecnologías
+## 🎯 ¿Cómo se juega?
 
-- **Backend**: Node.js, Express, Socket.IO
-- **Frontend**: HTML5, CSS3, JavaScript vanilla
-- **Datos**: JSON con lista de videojuegos
+### Objetivo del Juego
 
-## 📦 Instalación
+- **Jugadores Inocentes**: Todos comparten un videojuego en común. Deben descubrir quién es el impostor sin revelar demasiada información.
+- **El Impostor**: No conoce el videojuego. Debe descubrir cuál es sin ser descubierto, haciendo preguntas sutiles y mezclándose con los demás.
 
-1. Instalar dependencias:
+### Fases del Juego
+
+1. **Lobby**: Los jugadores se unen a una sala usando un código de 6 caracteres
+2. **Asignación de Roles**: El sistema asigna aleatoriamente quién será el impostor
+3. **Discusión**: Los jugadores chatean y hacen preguntas para descubrir al impostor
+4. **Votación**: Todos votan por quién creen que es el impostor
+5. **Resultados**: Se revela si los inocentes ganaron o si el impostor logró escapar
+
+## 🎮 Modos de Juego
+
+### Modo Normal
+El modo clásico donde:
+- Los jugadores inocentes comparten un videojuego
+- El impostor debe descubrir cuál es sin ser detectado
+- Todos discuten y votan al final
+
+### Modo Doble Juego
+Un modo avanzado donde:
+- Los jugadores inocentes comparten un videojuego
+- **El impostor también tiene un videojuego diferente**
+- El impostor debe descubrir el juego de los inocentes mientras oculta el suyo
+- Añade una capa extra de estrategia y engaño
+
+## ✨ Características
+
+- 🌐 **Multijugador en tiempo real** usando WebSockets
+- 💬 **Chat integrado** para la fase de discusión
+- 🎲 **Más de 80 videojuegos** en la base de datos
+- 🎨 **Interfaz moderna y atractiva** con animaciones fluidas
+- 📱 **Diseño responsive** para jugar en cualquier dispositivo
+- 🎵 **Música de fondo** para una experiencia inmersiva
+- 🔒 **Sistema de salas privadas** con códigos únicos
+
+## 🚀 Instalación
+
+### Requisitos Previos
+- Node.js (v14 o superior)
+- npm o yarn
+
+### Pasos de Instalación
+
+1. Clona el repositorio:
+```bash
+git clone https://github.com/DavidFerreiro-dev/Traitors.git
+cd Traitors
+```
+
+2. Instala las dependencias:
 ```bash
 npm install
 ```
 
-2. Iniciar el servidor:
+3. Inicia el servidor:
 ```bash
 npm start
 ```
 
-3. Abrir en el navegador:
-```
-http://localhost:3000
-```
+4. Abre tu navegador en `http://localhost:3000`
 
-## 🎮 Cómo Jugar
+### Inicio Rápido (Windows)
+Simplemente ejecuta el archivo `iniciar.bat` para iniciar el servidor automáticamente.
 
-### 1. Crear o Unirse a una Sala
-- Un jugador crea una sala y recibe un código
-- Otros jugadores se unen con ese código
-- Se necesitan mínimo 3 jugadores
+## 🎯 Requisitos del Juego
 
-### 2. Inicio de Partida
-- El host inicia la partida
-- El sistema asigna aleatoriamente:
-  - **1 impostor** (no recibe información del juego)
-  - **Resto de jugadores** (reciben el nombre y pista del videojuego)
+- **Mínimo 3 jugadores** para comenzar una partida
+- Conexión a internet estable
+- Navegador web moderno (Chrome, Firefox, Edge, Safari)
 
-### 3. Fase de Discusión
-- Todos pueden chatear en tiempo real
-- Los inocentes deben hacer preguntas sutiles
-- El impostor debe intentar mezclarse
+## 🛠️ Tecnologías Utilizadas
 
-### 4. Votación
-- El host inicia la votación
-- Cada jugador vota a quien cree que es el impostor
-- No puedes votarte a ti mismo
-
-### 5. Resultados
-- Se revela quién era el impostor
-- Se muestra si los inocentes ganaron
-- Se puede iniciar una nueva partida
+- **Backend**: Node.js, Express.js
+- **WebSockets**: Socket.IO para comunicación en tiempo real
+- **Frontend**: HTML5, CSS3, JavaScript vanilla
+- **Base de datos**: JSON para almacenamiento de juegos
 
 ## 📂 Estructura del Proyecto
 
 ```
-/impostor-game
-│
-├── server.js              # Servidor Node.js + Socket.IO
-├── package.json           # Dependencias del proyecto
-├── games.json             # Lista de videojuegos con pistas
-├── README.md              # Este archivo
-│
-└── public/
-    ├── index.html         # Interfaz principal
-    ├── style.css          # Estilos del juego
-    └── client.js          # Lógica del cliente
+Impostores/
+├── public/
+│   ├── index.html      # Interfaz principal
+│   ├── client.js       # Lógica del cliente
+│   └── style.css       # Estilos
+├── server.js           # Servidor Node.js
+├── games.json          # Base de datos de juegos
+├── background.mp3      # Música de fondo
+├── icon.png           # Logo del juego
+└── README.md          # Este archivo
 ```
 
-## 🎲 Agregar Más Juegos
+## 🎮 Consejos para Jugar
 
-Edita el archivo `games.json` y agrega más videojuegos con este formato:
+### Para Inocentes:
+- Haz preguntas específicas pero no demasiado obvias
+- Observa quién hace preguntas genéricas
+- Coordina con otros jugadores para identificar al impostor
+- No reveles el juego directamente
 
-```json
-{
-  "title": "Nombre del Juego",
-  "hint": "Pista descriptiva del juego"
-}
-```
-
-## 🔧 Desarrollo
-
-Para desarrollo con auto-reinicio:
-
-```bash
-npm run dev
-```
-
-## 📝 Características
-
-✅ Salas privadas con códigos únicos  
-✅ Chat en tiempo real  
-✅ Asignación aleatoria de roles  
-✅ Sistema de votación  
-✅ Interfaz responsive  
-✅ Notificaciones visuales  
-✅ Reconexión automática del host  
-✅ 20 videojuegos incluidos  
-
-## 🎨 Personalización
-
-### Cambiar el puerto
-Edita `server.js` o usa variable de entorno:
-```bash
-PORT=8080 npm start
-```
-
-### Modificar estilos
-Edita `public/style.css` para cambiar colores, fuentes, etc.
-
-## 🐛 Solución de Problemas
-
-**El servidor no inicia:**
-- Verifica que Node.js esté instalado: `node --version`
-- Instala las dependencias: `npm install`
-
-**No se conectan los jugadores:**
-- Verifica que todos usen la misma URL
-- Revisa el firewall si usas red local
-
-**El chat no funciona:**
-- Verifica la consola del navegador (F12)
-- Asegúrate de que Socket.IO esté cargado correctamente
-
-## 📄 Licencia
-
-MIT License - Siéntete libre de usar y modificar este proyecto.
+### Para el Impostor:
+- Haz preguntas que puedan aplicarse a muchos juegos
+- Observa las respuestas de los demás
+- Intenta mezclarte y actuar como si supieras el juego
+- En modo Doble Juego, usa tu juego para crear confusión
 
 ## 🤝 Contribuciones
 
-¡Las contribuciones son bienvenidas! Siéntete libre de:
-- Agregar más videojuegos
-- Mejorar la interfaz
-- Agregar nuevas características
-- Reportar bugs
+Las contribuciones son bienvenidas. Si deseas contribuir:
+
+1. Haz un Fork del proyecto
+2. Crea una rama para tu característica (`git checkout -b feature/NuevaCaracteristica`)
+3. Commit tus cambios (`git commit -m 'Añadir nueva característica'`)
+4. Push a la rama (`git push origin feature/NuevaCaracteristica`)
+5. Abre un Pull Request
+
+## 📝 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 🔗 Enlaces
+
+- **Repositorio**: [GitHub](https://github.com/DavidFerreiro-dev/Traitors)
+- **Studios Riba**: [itch.io](https://studiosriba.itch.io)
+
+## 👥 Créditos
+
+- **Creado por**: David Ferreiro
+- **Desarrollo**: David Ferreiro, Studios Riba (con uso de Zencoder)
+- **Director de Arte**: Studios Riba
+
+## 📧 Contacto
+
+Para reportar bugs, sugerencias o preguntas, por favor abre un issue en el repositorio de GitHub.
 
 ---
 
-**¡Diviértete jugando!** 🎉
+¡Diviértete jugando a Impostores! 🎮🎭

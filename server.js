@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Servir archivos de la raíz (background.mp3, icon.png)
+app.use(express.static(__dirname));
+
 // Cargar juegos desde JSON
 const gamesData = JSON.parse(fs.readFileSync('./games.json', 'utf-8'));
 
@@ -33,6 +36,15 @@ function getRandomGame() {
 function assignRoles(room) {
   const players = Object.values(room.players);
   const game = getRandomGame();
+  let impostorGame = null;
+  
+  // En modo Doble Juego, seleccionar un juego diferente para el impostor
+  if (room.gameMode === 'double') {
+    do {
+      impostorGame = getRandomGame();
+    } while (impostorGame.title === game.title); // Asegurar que sean diferentes
+    console.log(`🎭 Modo Doble Juego: Juego del impostor: ${impostorGame.title}`);
+  }
   
   // Mezclar array de jugadores para mayor aleatoriedad
   const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
@@ -47,7 +59,7 @@ function assignRoles(room) {
   players.forEach((player) => {
     if (player.id === impostorId) {
       player.role = 'impostor';
-      player.game = null;
+      player.game = impostorGame; // En modo normal será null, en doble será un juego
     } else {
       player.role = 'innocent';
       player.game = game;
@@ -60,15 +72,16 @@ function assignRoles(room) {
   room.votingPhase = false;
   room.gameEnded = false;
   room.currentGame = game;
+  room.impostorGame = impostorGame;
   
-  console.log(`🎮 Juego seleccionado: ${game.title}`);
+  console.log(`🎮 Juego de los inocentes: ${game.title}`);
 }
 
 io.on('connection', (socket) => {
   console.log('Usuario conectado:', socket.id);
 
   // Crear sala
-  socket.on('createRoom', (playerName) => {
+  socket.on('createRoom', ({ playerName, gameMode }) => {
     const roomCode = generateRoomCode();
     
     rooms[roomCode] = {
@@ -79,7 +92,9 @@ io.on('connection', (socket) => {
       votingPhase: false,
       gameEnded: false,
       currentGame: null,
-      votes: {}
+      impostorGame: null,
+      votes: {},
+      gameMode: gameMode || 'normal'
     };
 
     rooms[roomCode].players[socket.id] = {
@@ -92,10 +107,10 @@ io.on('connection', (socket) => {
     };
 
     socket.join(roomCode);
-    socket.emit('roomCreated', { roomCode, playerName });
+    socket.emit('roomCreated', { roomCode, playerName, gameMode: rooms[roomCode].gameMode });
     io.to(roomCode).emit('updatePlayers', Object.values(rooms[roomCode].players));
     
-    console.log(`Sala ${roomCode} creada por ${playerName}`);
+    console.log(`Sala ${roomCode} creada por ${playerName} - Modo: ${rooms[roomCode].gameMode}`);
   });
 
   // Unirse a sala
@@ -122,7 +137,12 @@ io.on('connection', (socket) => {
     };
 
     socket.join(roomCode);
-    socket.emit('roomJoined', { roomCode, playerName, isHost: socket.id === room.host });
+    socket.emit('roomJoined', { 
+      roomCode, 
+      playerName, 
+      isHost: socket.id === room.host,
+      gameMode: room.gameMode 
+    });
     io.to(roomCode).emit('updatePlayers', Object.values(room.players));
     
     console.log(`${playerName} se unió a la sala ${roomCode}`);
@@ -152,14 +172,16 @@ io.on('connection', (socket) => {
 
     // Enviar roles a cada jugador
     Object.values(room.players).forEach((player) => {
-      io.to(player.id).emit('roleAssigned', {
+      const roleData = {
         role: player.role,
-        game: player.game
-      });
+        game: player.role === 'innocent' ? player.game : room.currentGame,
+        impostorGame: player.role === 'impostor' ? player.game : null
+      };
+      io.to(player.id).emit('roleAssigned', roleData);
     });
 
     io.to(roomCode).emit('gameStarted');
-    console.log(`Partida iniciada en sala ${roomCode}`);
+    console.log(`Partida iniciada en sala ${roomCode} - Modo: ${room.gameMode}`);
   });
 
   // Enviar mensaje de chat
@@ -320,6 +342,7 @@ io.on('connection', (socket) => {
     room.votingPhase = false;
     room.gameEnded = false;
     room.currentGame = null;
+    room.impostorGame = null;
     room.votes = {};
 
     // Limpiar todos los datos de los jugadores

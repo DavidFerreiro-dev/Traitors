@@ -3,20 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 ¿Quién es el Impostor? - Juego Multijugador</title>
+    <title>🎮 Impostores - Juego Multijugador</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    <link rel="icon" href="/icon.png" type="image/png">
 </head>
 <body>
+    <!-- Música de fondo -->
+    <audio id="backgroundMusic" loop>
+        <source src="/background.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Botones de navegación superior -->
+    <div class="top-nav">
+        <a href="https://studiosriba.itch.io" target="_blank" class="nav-btn">
+            🎮 Studios Riba
+        </a>
+        <button id="creditsBtn" class="nav-btn">
+            ℹ️ Créditos
+        </button>
+        <button id="musicToggle" class="nav-btn music-btn">
+            🔊 Música
+        </button>
+    </div>
+
+    <!-- Modal de Créditos -->
+    <div id="creditsModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>🎮 Impostores</h2>
+            <div class="credits-content">
+                <p><strong>Creado por:</strong> David Ferreiro</p>
+                <p><strong>Desarrollo:</strong> David Ferreiro, Studios Riba<br>con uso de Zencoder</p>
+                <p><strong>Director de Arte:</strong> Studios Riba</p>
+                <div class="credits-links">
+                    <a href="https://github.com/DavidFerreiro-dev/Traitors" target="_blank" class="credits-link">
+                        📂 Ver en GitHub
+                    </a>
+                    <a href="https://studiosriba.itch.io" target="_blank" class="credits-link">
+                        🎮 Studios Riba
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <!-- Pantalla de inicio -->
         <div id="startScreen" class="screen active">
             <div class="card">
-                <h1>🎮 ¿Quién es el Impostor?</h1>
+                <div class="logo-container">
+                    <img src="/icon.png" alt="Impostores Logo" class="game-logo">
+                </div>
+                <h1>🎮 Impostores</h1>
                 <p class="subtitle">Juego multijugador de deducción</p>
                 
                 <div class="input-group">
                     <input type="text" id="playerNameInput" placeholder="Tu nombre" maxlength="20">
+                </div>
+
+                <!-- Selector de modo de juego -->
+                <div class="game-mode-selector">
+                    <h3>Selecciona el modo de juego:</h3>
+                    <div class="mode-options">
+                        <label class="mode-option selected">
+                            <input type="radio" name="gameMode" value="normal" checked>
+                            <div class="mode-card">
+                                <div class="mode-icon">🎯</div>
+                                <div class="mode-title">Modo Normal</div>
+                                <div class="mode-description">Los inocentes comparten un juego. El impostor debe descubrirlo.</div>
+                            </div>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="gameMode" value="double">
+                            <div class="mode-card">
+                                <div class="mode-icon">🎭</div>
+                                <div class="mode-title">Doble Juego</div>
+                                <div class="mode-description">El impostor también tiene un juego diferente. ¡Más desafío!</div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="button-group">
@@ -38,6 +102,10 @@
             <div class="card">
                 <h2>Sala: <span id="roomCodeDisplay"></span></h2>
                 <p class="subtitle">Esperando jugadores...</p>
+
+                <div class="game-mode-display">
+                    <span class="mode-badge" id="currentModeDisplay">🎯 Modo Normal</span>
+                </div>
 
                 <div class="players-list">
                     <h3>Jugadores conectados:</h3>
@@ -62,9 +130,21 @@
                 <div class="role-panel card">
                     <div id="impostorRole" class="role-info hidden">
                         <h2 class="impostor-title">🎭 Eres el IMPOSTOR</h2>
-                        <p>Los demás jugadores tienen un videojuego en común.</p>
-                        <p><strong>Tu objetivo:</strong> Descubrir cuál es sin que te descubran.</p>
-                        <p class="tip">💡 Haz preguntas sutiles y trata de mezclarte</p>
+                        <div id="impostorNormalMode">
+                            <p>Los demás jugadores tienen un videojuego en común.</p>
+                            <p><strong>Tu objetivo:</strong> Descubrir cuál es sin que te descubran.</p>
+                            <p class="tip">💡 Haz preguntas sutiles y trata de mezclarte</p>
+                        </div>
+                        <div id="impostorDoubleMode" class="hidden">
+                            <div class="game-info impostor-game">
+                                <h3>Tu videojuego (secreto):</h3>
+                                <p class="game-title" id="impostorGameTitle"></p>
+                                <p class="game-hint">💡 <span id="impostorGameHint"></span></p>
+                            </div>
+                            <p>Los demás jugadores tienen un videojuego diferente en común.</p>
+                            <p><strong>Tu objetivo:</strong> Descubrir cuál es el juego de ellos sin revelar el tuyo.</p>
+                            <p class="tip">💡 Usa tu juego para crear confusión y mezclarte</p>
+                        </div>
                     </div>
 
                     <div id="innocentRole" class="role-info hidden">

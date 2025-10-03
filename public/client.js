@@ -6,8 +6,68 @@ let gameState = {
     roomCode: '',
     isHost: false,
     role: null,
-    game: null
+    game: null,
+    gameMode: 'normal',
+    impostorGame: null
 };
+
+// Música de fondo
+const backgroundMusic = document.getElementById('backgroundMusic');
+let musicPlaying = false;
+
+// Inicializar música
+function initMusic() {
+    if (!musicPlaying) {
+        backgroundMusic.play().catch(e => {
+            console.log('Autoplay bloqueado, esperando interacción del usuario');
+        });
+        musicPlaying = true;
+    }
+}
+
+// Toggle música
+document.getElementById('musicToggle').addEventListener('click', () => {
+    if (musicPlaying) {
+        backgroundMusic.pause();
+        musicPlaying = false;
+        document.getElementById('musicToggle').innerHTML = '🔇 Música';
+    } else {
+        backgroundMusic.play();
+        musicPlaying = true;
+        document.getElementById('musicToggle').innerHTML = '🔊 Música';
+    }
+});
+
+// Modal de créditos
+const creditsModal = document.getElementById('creditsModal');
+const creditsBtn = document.getElementById('creditsBtn');
+const closeModal = document.querySelector('.close-modal');
+
+creditsBtn.addEventListener('click', () => {
+    creditsModal.classList.remove('hidden');
+});
+
+closeModal.addEventListener('click', () => {
+    creditsModal.classList.add('hidden');
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === creditsModal) {
+        creditsModal.classList.add('hidden');
+    }
+});
+
+// Selector de modo de juego
+const modeOptions = document.querySelectorAll('.mode-option');
+modeOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        modeOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        const radio = option.querySelector('input[type="radio"]');
+        radio.checked = true;
+        gameState.gameMode = radio.value;
+    });
+});
 
 // Elementos del DOM
 const screens = {
@@ -56,8 +116,13 @@ document.getElementById('createRoomBtn').addEventListener('click', () => {
         return;
     }
     
+    initMusic(); // Iniciar música al interactuar
+    
     gameState.playerName = playerName;
-    socket.emit('createRoom', playerName);
+    const selectedMode = document.querySelector('input[name="gameMode"]:checked').value;
+    gameState.gameMode = selectedMode;
+    
+    socket.emit('createRoom', { playerName, gameMode: selectedMode });
 });
 
 document.getElementById('joinRoomBtn').addEventListener('click', () => {
@@ -79,25 +144,50 @@ document.getElementById('joinRoomConfirmBtn').addEventListener('click', () => {
         return;
     }
     
+    initMusic(); // Iniciar música al interactuar
+    
     gameState.playerName = playerName;
     gameState.roomCode = roomCode;
     socket.emit('joinRoom', { roomCode, playerName });
 });
 
 // Eventos del servidor - Lobby
-socket.on('roomCreated', ({ roomCode, playerName }) => {
+socket.on('roomCreated', ({ roomCode, playerName, gameMode }) => {
     gameState.roomCode = roomCode;
     gameState.isHost = true;
+    gameState.gameMode = gameMode;
     document.getElementById('roomCodeDisplay').textContent = roomCode;
     document.getElementById('hostControls').classList.remove('hidden');
+    
+    // Actualizar display del modo
+    const modeDisplay = document.getElementById('currentModeDisplay');
+    if (gameMode === 'double') {
+        modeDisplay.innerHTML = '🎭 Modo Doble Juego';
+        modeDisplay.classList.add('double-mode');
+    } else {
+        modeDisplay.innerHTML = '🎯 Modo Normal';
+        modeDisplay.classList.remove('double-mode');
+    }
+    
     showScreen('lobby');
     showNotification(`Sala ${roomCode} creada exitosamente`, 'success');
 });
 
-socket.on('roomJoined', ({ roomCode, playerName, isHost }) => {
+socket.on('roomJoined', ({ roomCode, playerName, isHost, gameMode }) => {
     gameState.roomCode = roomCode;
     gameState.isHost = isHost;
+    gameState.gameMode = gameMode;
     document.getElementById('roomCodeDisplay').textContent = roomCode;
+    
+    // Actualizar display del modo
+    const modeDisplay = document.getElementById('currentModeDisplay');
+    if (gameMode === 'double') {
+        modeDisplay.innerHTML = '🎭 Modo Doble Juego';
+        modeDisplay.classList.add('double-mode');
+    } else {
+        modeDisplay.innerHTML = '🎯 Modo Normal';
+        modeDisplay.classList.remove('double-mode');
+    }
     
     if (isHost) {
         document.getElementById('hostControls').classList.remove('hidden');
@@ -142,16 +232,29 @@ socket.on('gameStarted', () => {
     showNotification('¡La partida ha comenzado!', 'success');
 });
 
-socket.on('roleAssigned', ({ role, game }) => {
+socket.on('roleAssigned', ({ role, game, impostorGame }) => {
     gameState.role = role;
     gameState.game = game;
+    gameState.impostorGame = impostorGame;
     
     // Pequeño delay para crear suspense
     setTimeout(() => {
         if (role === 'impostor') {
             document.getElementById('impostorRole').classList.remove('hidden');
             document.getElementById('innocentRole').classList.add('hidden');
-            showNotification('¡Eres el IMPOSTOR! 🎭', 'error');
+            
+            // Mostrar modo apropiado para el impostor
+            if (gameState.gameMode === 'double' && impostorGame) {
+                document.getElementById('impostorNormalMode').classList.add('hidden');
+                document.getElementById('impostorDoubleMode').classList.remove('hidden');
+                document.getElementById('impostorGameTitle').textContent = impostorGame.title;
+                document.getElementById('impostorGameHint').textContent = impostorGame.hint;
+                showNotification('¡Eres el IMPOSTOR! 🎭 Tienes un juego diferente', 'error');
+            } else {
+                document.getElementById('impostorNormalMode').classList.remove('hidden');
+                document.getElementById('impostorDoubleMode').classList.add('hidden');
+                showNotification('¡Eres el IMPOSTOR! 🎭', 'error');
+            }
         } else {
             document.getElementById('innocentRole').classList.remove('hidden');
             document.getElementById('impostorRole').classList.add('hidden');
