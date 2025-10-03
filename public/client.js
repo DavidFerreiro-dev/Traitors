@@ -176,7 +176,13 @@ socket.on('updatePlayers', (players) => {
         if (player.id === socket.id) {
             li.textContent += ' 👈 (Tú)';
             li.style.fontWeight = '700';
-            li.style.background = 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)';
+            li.style.background = 'linear-gradient(135deg, #FF006E 0%, #8B5CF6 100%)';
+            li.style.color = '#FFFFFF';
+            li.style.textShadow = '0 0 10px rgba(255, 0, 110, 0.8)';
+            li.style.border = '2px solid #FF006E';
+        } else {
+            li.style.color = '#00D9FF';
+            li.style.textShadow = '0 0 8px rgba(0, 217, 255, 0.6)';
         }
         playersList.appendChild(li);
     });
