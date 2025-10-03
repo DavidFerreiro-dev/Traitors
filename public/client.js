@@ -11,33 +11,6 @@ let gameState = {
     impostorGame: null
 };
 
-// Música de fondo
-const backgroundMusic = document.getElementById('backgroundMusic');
-let musicPlaying = false;
-
-// Inicializar música
-function initMusic() {
-    if (!musicPlaying) {
-        backgroundMusic.play().catch(e => {
-            console.log('Autoplay bloqueado, esperando interacción del usuario');
-        });
-        musicPlaying = true;
-    }
-}
-
-// Toggle música
-document.getElementById('musicToggle').addEventListener('click', () => {
-    if (musicPlaying) {
-        backgroundMusic.pause();
-        musicPlaying = false;
-        document.getElementById('musicToggle').innerHTML = '🔇 Música';
-    } else {
-        backgroundMusic.play();
-        musicPlaying = true;
-        document.getElementById('musicToggle').innerHTML = '🔊 Música';
-    }
-});
-
 // Modal de créditos
 const creditsModal = document.getElementById('creditsModal');
 const creditsBtn = document.getElementById('creditsBtn');
@@ -116,8 +89,6 @@ document.getElementById('createRoomBtn').addEventListener('click', () => {
         return;
     }
     
-    initMusic(); // Iniciar música al interactuar
-    
     gameState.playerName = playerName;
     const selectedMode = document.querySelector('input[name="gameMode"]:checked').value;
     gameState.gameMode = selectedMode;
@@ -143,8 +114,6 @@ document.getElementById('joinRoomConfirmBtn').addEventListener('click', () => {
         showNotification('Por favor, ingresa el código de sala', 'error');
         return;
     }
-    
-    initMusic(); // Iniciar música al interactuar
     
     gameState.playerName = playerName;
     gameState.roomCode = roomCode;
@@ -239,28 +208,32 @@ socket.on('roleAssigned', ({ role, game, impostorGame }) => {
     
     // Pequeño delay para crear suspense
     setTimeout(() => {
-        if (role === 'impostor') {
-            document.getElementById('impostorRole').classList.remove('hidden');
-            document.getElementById('innocentRole').classList.add('hidden');
+        if (gameState.gameMode === 'double') {
+            // En modo doble, todos ven su juego sin saber si son impostor o inocente
+            document.getElementById('doubleModeDisplay').classList.remove('hidden');
+            document.getElementById('normalModeDisplay').classList.add('hidden');
             
-            // Mostrar modo apropiado para el impostor
-            if (gameState.gameMode === 'double' && impostorGame) {
-                document.getElementById('impostorNormalMode').classList.add('hidden');
-                document.getElementById('impostorDoubleMode').classList.remove('hidden');
-                document.getElementById('impostorGameTitle').textContent = impostorGame.title;
-                document.getElementById('impostorGameHint').textContent = impostorGame.hint;
-                showNotification('¡Eres el IMPOSTOR! 🎭 Tienes un juego diferente', 'error');
-            } else {
-                document.getElementById('impostorNormalMode').classList.remove('hidden');
-                document.getElementById('impostorDoubleMode').classList.add('hidden');
-                showNotification('¡Eres el IMPOSTOR! 🎭', 'error');
-            }
+            const displayGame = role === 'impostor' ? impostorGame : game;
+            document.getElementById('gameTitleDouble').textContent = displayGame.title;
+            document.getElementById('gameHintDouble').textContent = displayGame.hint;
+            
+            showNotification('¡Partida iniciada! 🎮 Uno tiene un juego distinto...', 'info');
         } else {
-            document.getElementById('innocentRole').classList.remove('hidden');
-            document.getElementById('impostorRole').classList.add('hidden');
-            document.getElementById('gameTitle').textContent = game.title;
-            document.getElementById('gameHint').textContent = game.hint;
-            showNotification('Eres INOCENTE ✅', 'success');
+            // Modo normal: se muestra claramente quién es impostor e inocente
+            document.getElementById('normalModeDisplay').classList.remove('hidden');
+            document.getElementById('doubleModeDisplay').classList.add('hidden');
+            
+            if (role === 'impostor') {
+                document.getElementById('impostorRoleNormal').classList.remove('hidden');
+                document.getElementById('innocentRoleNormal').classList.add('hidden');
+                showNotification('¡Eres el IMPOSTOR! 🎭', 'error');
+            } else {
+                document.getElementById('innocentRoleNormal').classList.remove('hidden');
+                document.getElementById('impostorRoleNormal').classList.add('hidden');
+                document.getElementById('gameTitleNormal').textContent = game.title;
+                document.getElementById('gameHintNormal').textContent = game.hint;
+                showNotification('Eres INOCENTE ✅', 'success');
+            }
         }
         
         if (gameState.isHost) {

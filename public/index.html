@@ -5,14 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎮 Impostores - Juego Multijugador</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="/icon.png" type="image/png">
 </head>
 <body>
-    <!-- Música de fondo -->
-    <audio id="backgroundMusic" loop>
-        <source src="/background.mp3" type="audio/mpeg">
-    </audio>
-    
     <!-- Botones de navegación superior -->
     <div class="top-nav">
         <a href="https://studiosriba.itch.io" target="_blank" class="nav-btn">
@@ -20,9 +14,6 @@
         </a>
         <button id="creditsBtn" class="nav-btn">
             ℹ️ Créditos
-        </button>
-        <button id="musicToggle" class="nav-btn music-btn">
-            🔊 Música
         </button>
     </div>
 
@@ -50,9 +41,6 @@
         <!-- Pantalla de inicio -->
         <div id="startScreen" class="screen active">
             <div class="card">
-                <div class="logo-container">
-                    <img src="/icon.png" alt="Impostores Logo" class="game-logo">
-                </div>
                 <h1>🎮 Impostores</h1>
                 <p class="subtitle">Juego multijugador de deducción</p>
                 
@@ -77,7 +65,7 @@
                             <div class="mode-card">
                                 <div class="mode-icon">🎭</div>
                                 <div class="mode-title">Doble Juego</div>
-                                <div class="mode-description">El impostor también tiene un juego diferente. ¡Más desafío!</div>
+                                <div class="mode-description">Uno tiene un juego distinto. ¿Quién será? ¡Nadie lo sabe!</div>
                             </div>
                         </label>
                     </div>
@@ -128,34 +116,39 @@
             <div class="game-layout">
                 <!-- Panel de rol -->
                 <div class="role-panel card">
-                    <div id="impostorRole" class="role-info hidden">
-                        <h2 class="impostor-title">🎭 Eres el IMPOSTOR</h2>
-                        <div id="impostorNormalMode">
+                    <!-- Modo Normal -->
+                    <div id="normalModeDisplay" class="role-info hidden">
+                        <div id="impostorRoleNormal" class="hidden">
+                            <h2 class="impostor-title">🎭 Eres el IMPOSTOR</h2>
                             <p>Los demás jugadores tienen un videojuego en común.</p>
                             <p><strong>Tu objetivo:</strong> Descubrir cuál es sin que te descubran.</p>
                             <p class="tip">💡 Haz preguntas sutiles y trata de mezclarte</p>
                         </div>
-                        <div id="impostorDoubleMode" class="hidden">
-                            <div class="game-info impostor-game">
-                                <h3>Tu videojuego (secreto):</h3>
-                                <p class="game-title" id="impostorGameTitle"></p>
-                                <p class="game-hint">💡 <span id="impostorGameHint"></span></p>
+
+                        <div id="innocentRoleNormal" class="hidden">
+                            <h2 class="innocent-title">✅ Eres INOCENTE</h2>
+                            <div class="game-info">
+                                <h3>Tu videojuego:</h3>
+                                <p class="game-title" id="gameTitleNormal"></p>
+                                <p class="game-hint">💡 <span id="gameHintNormal"></span></p>
                             </div>
-                            <p>Los demás jugadores tienen un videojuego diferente en común.</p>
-                            <p><strong>Tu objetivo:</strong> Descubrir cuál es el juego de ellos sin revelar el tuyo.</p>
-                            <p class="tip">💡 Usa tu juego para crear confusión y mezclarte</p>
+                            <p><strong>Tu objetivo:</strong> Descubrir quién es el impostor sin revelar demasiado.</p>
+                            <p class="tip">⚠️ Cuidado: el impostor está escuchando</p>
                         </div>
                     </div>
 
-                    <div id="innocentRole" class="role-info hidden">
-                        <h2 class="innocent-title">✅ Eres INOCENTE</h2>
+                    <!-- Modo Doble -->
+                    <div id="doubleModeDisplay" class="role-info hidden">
+                        <h2 class="mystery-title">🎮 Tu Videojuego</h2>
                         <div class="game-info">
-                            <h3>Tu videojuego:</h3>
-                            <p class="game-title" id="gameTitle"></p>
-                            <p class="game-hint">💡 <span id="gameHint"></span></p>
+                            <p class="game-title" id="gameTitleDouble"></p>
+                            <p class="game-hint">💡 <span id="gameHintDouble"></span></p>
                         </div>
-                        <p><strong>Tu objetivo:</strong> Descubrir quién es el impostor sin revelar demasiado.</p>
-                        <p class="tip">⚠️ Cuidado: el impostor está escuchando</p>
+                        <div class="mystery-info">
+                            <p><strong>⚠️ Atención:</strong> Uno de los jugadores tiene un juego diferente al resto.</p>
+                            <p><strong>Tu objetivo:</strong> Descubre quién tiene el juego distinto.</p>
+                            <p class="tip">💡 Puede que seas tú quien lo tenga... o no. ¡Nadie lo sabe!</p>
+                        </div>
                     </div>
                 </div>
 

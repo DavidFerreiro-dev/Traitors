@@ -30,50 +30,21 @@ El modo clásico donde:
 - Todos discuten y votan al final
 
 ### Modo Doble Juego
-Un modo avanzado donde:
-- Los jugadores inocentes comparten un videojuego
-- **El impostor también tiene un videojuego diferente**
-- El impostor debe descubrir el juego de los inocentes mientras oculta el suyo
-- Añade una capa extra de estrategia y engaño
+Un modo misterioso donde:
+- **Uno de los jugadores tiene un videojuego diferente al resto**
+- **Nadie sabe quién tiene el juego distinto** (ni siquiera ellos mismos lo saben con certeza)
+- Todos deben descubrir quién es el diferente
+- Añade una capa extra de misterio y paranoia
 
 ## ✨ Características
 
 - 🌐 **Multijugador en tiempo real** usando WebSockets
 - 💬 **Chat integrado** para la fase de discusión
-- 🎲 **Más de 80 videojuegos** en la base de datos
-- 🎨 **Interfaz moderna y atractiva** con animaciones fluidas
-- 📱 **Diseño responsive** para jugar en cualquier dispositivo
-- 🎵 **Música de fondo** para una experiencia inmersiva
+- 🎲 **Más de 200 videojuegos** en la base de datos
+- 🎨 **Interfaz Y2K retro** con estética del año 2000
+- 📱 **Diseño responsive** optimizado para móviles
 - 🔒 **Sistema de salas privadas** con códigos únicos
-
-## 🚀 Instalación
-
-### Requisitos Previos
-- Node.js (v14 o superior)
-- npm o yarn
-
-### Pasos de Instalación
-
-1. Clona el repositorio:
-```bash
-git clone https://github.com/DavidFerreiro-dev/Traitors.git
-cd Traitors
-```
-
-2. Instala las dependencias:
-```bash
-npm install
-```
-
-3. Inicia el servidor:
-```bash
-npm start
-```
-
-4. Abre tu navegador en `http://localhost:3000`
-
-### Inicio Rápido (Windows)
-Simplemente ejecuta el archivo `iniciar.bat` para iniciar el servidor automáticamente.
+- 🎭 **Dos modos de juego** distintos para mayor variedad
 
 ## 🎯 Requisitos del Juego
 
